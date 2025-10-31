@@ -1,0 +1,56 @@
+# Python Dependencies for CF-DEMO-REPO
+# Ansible and AWX automation platform
+
+# Core Ansible
+ansible>=8.0.0,<9.0.0
+ansible-core>=2.15.0,<2.16.0
+ansible-runner>=2.3.4
+
+# Cloudflare API
+cloudflare>=2.19.0
+certifi>=2023.7.22
+
+# Kubernetes and Helm
+kubernetes>=28.1.0
+pyyaml>=6.0.1
+jinja2>=3.1.2
+
+# HTTP and API clients
+requests>=2.31.0
+urllib3>=2.0.7
+
+# Utilities
+python-dotenv>=1.0.0
+rich>=13.7.0
+click>=8.1.7
+tabulate>=0.9.0
+
+# JSON/YAML processing
+jsonschema>=4.20.0
+pydantic>=2.5.0
+
+# Cryptography and security
+cryptography>=41.0.7
+ansible-vault>=2.0.0
+
+# Testing (optional, for development)
+pytest>=7.4.3
+pytest-ansible>=4.1.1
+molecule>=6.0.2
+molecule-plugins[docker]>=23.5.0
+
+# Linting and formatting (optional)
+ansible-lint>=6.22.1
+yamllint>=1.33.0
+black>=23.12.1
+flake8>=7.0.0
+
+# AWX/Tower CLI
+awxkit>=24.0.0
+
+# Netaddr for IP address manipulation
+netaddr>=0.10.1
+
+# Documentation
+mkdocs>=1.5.3
+mkdocs-material>=9.5.3

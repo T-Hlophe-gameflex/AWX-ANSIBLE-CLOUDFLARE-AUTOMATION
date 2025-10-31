@@ -1,0 +1,52 @@
+---
+# Ansible Galaxy Collections and Roles Requirements
+# Install with: ansible-galaxy install -r requirements.yml
+
+collections:
+  # Kubernetes and cloud infrastructure
+  - name: kubernetes.core
+    version: ">=3.0.0"
+  
+  - name: community.kubernetes
+    version: ">=3.0.0"
+  
+  # Docker and containers
+  - name: community.docker
+    version: ">=3.4.0"
+  
+  # General utilities
+  - name: community.general
+    version: ">=8.0.0"
+  
+  # Crypto and security
+  - name: community.crypto
+    version: ">=2.16.0"
+  
+  # AWS (if needed for DNS comparison)
+  - name: amazon.aws
+    version: ">=7.0.0"
+  
+  # Monitoring and observability
+  - name: community.grafana
+    version: ">=1.6.0"
+  
+  # POSIX utilities
+  - name: ansible.posix
+    version: ">=1.5.0"
+  
+  # Built-in collections (specify for compatibility)
+  - name: ansible.builtin
+    version: ">=2.15.0"
+  
+  - name: ansible.utils
+    version: ">=3.0.0"
+
+roles:
+  # Example external roles (if needed)
+  # - name: geerlingguy.docker
+  #   version: "7.0.0"
+  
+  # - name: geerlingguy.kubernetes
+  #   version: "6.1.0"
+  
+  # Note: Most roles are custom and defined in the roles/ directory

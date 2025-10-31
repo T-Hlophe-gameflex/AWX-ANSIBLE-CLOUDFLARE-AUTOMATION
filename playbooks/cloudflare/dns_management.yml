@@ -1,0 +1,206 @@
+---
+# =============================================================================
+# CLOUDFLARE DNS MANAGEMENT PLAYBOOK
+# =============================================================================
+# Purpose: Manage DNS records in Cloudflare zones
+# Usage: ansible-playbook playbooks/cloudflare/dns_management.yml
+# =============================================================================
+
+- name: Cloudflare DNS Management
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  
+  vars:
+    cf_validate_certs: true
+    cf_api_token: "{{ cloudflare_api_token | default(lookup('env', 'CLOUDFLARE_API_TOKEN')) }}"
+    
+  tasks:
+    - name: Validate required variables
+      assert:
+        that:
+          - cf_api_token is defined
+          - cf_api_token | length > 0
+          - cf_action is defined
+          - cf_domain is defined
+        fail_msg: "Missing required variables. Ensure CLOUDFLARE_API_TOKEN, cf_action, and cf_domain are set."
+        success_msg: "All required variables are present"
+    
+    - name: Get zone information
+      uri:
+        url: "https://api.cloudflare.com/client/v4/zones?name={{ cf_domain }}"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ cf_api_token }}"
+        return_content: true
+        validate_certs: "{{ cf_validate_certs }}"
+        status_code: 200
+      register: zone_info
+      check_mode: false
+    
+    - name: Extract zone ID
+      set_fact:
+        zone_id: "{{ zone_info.json.result[0].id }}"
+      when: 
+        - zone_info.json.result is defined
+        - zone_info.json.result | length > 0
+    
+    - name: Fail if zone not found
+      fail:
+        msg: "Zone '{{ cf_domain }}' not found in Cloudflare account"
+      when: zone_id is not defined
+    
+    # CREATE DNS RECORD
+    - name: Create DNS record
+      when: cf_action == 'create'
+      block:
+        - name: Validate create parameters
+          assert:
+            that:
+              - cf_record_name is defined
+              - cf_record_type is defined
+              - cf_record_value is defined
+            fail_msg: "Missing required parameters for create action"
+        
+        - name: Create DNS record in Cloudflare
+          uri:
+            url: "https://api.cloudflare.com/client/v4/zones/{{ zone_id }}/dns_records"
+            method: POST
+            headers:
+              Authorization: "Bearer {{ cf_api_token }}"
+              Content-Type: "application/json"
+            body_format: json
+            body:
+              type: "{{ cf_record_type }}"
+              name: "{{ cf_record_name }}"
+              content: "{{ cf_record_value }}"
+              ttl: "{{ cf_record_ttl | default(1) }}"
+              proxied: "{{ cf_record_proxied | default(true) }}"
+              comment: "{{ cf_record_comment | default('Managed by Ansible AWX') }}"
+            validate_certs: "{{ cf_validate_certs }}"
+            status_code: 200
+          register: create_result
+        
+        - name: Display creation result
+          debug:
+            msg: 
+              - "✅ DNS record created successfully"
+              - "Record: {{ cf_record_name }}"
+              - "Type: {{ cf_record_type }}"
+              - "Value: {{ cf_record_value }}"
+              - "ID: {{ create_result.json.result.id }}"
+    
+    # UPDATE DNS RECORD
+    - name: Update DNS record
+      when: cf_action == 'update'
+      block:
+        - name: Get existing DNS records
+          uri:
+            url: "https://api.cloudflare.com/client/v4/zones/{{ zone_id }}/dns_records?name={{ cf_record_name }}.{{ cf_domain }}&type={{ cf_record_type }}"
+            method: GET
+            headers:
+              Authorization: "Bearer {{ cf_api_token }}"
+            return_content: true
+            validate_certs: "{{ cf_validate_certs }}"
+          register: existing_records
+          check_mode: false
+        
+        - name: Extract record ID
+          set_fact:
+            record_id: "{{ existing_records.json.result[0].id }}"
+          when:
+            - existing_records.json.result is defined
+            - existing_records.json.result | length > 0
+        
+        - name: Update DNS record
+          uri:
+            url: "https://api.cloudflare.com/client/v4/zones/{{ zone_id }}/dns_records/{{ record_id }}"
+            method: PATCH
+            headers:
+              Authorization: "Bearer {{ cf_api_token }}"
+              Content-Type: "application/json"
+            body_format: json
+            body:
+              type: "{{ cf_record_type }}"
+              name: "{{ cf_record_name }}"
+              content: "{{ cf_record_value }}"
+              ttl: "{{ cf_record_ttl | default(1) }}"
+              proxied: "{{ cf_record_proxied | default(true) }}"
+            validate_certs: "{{ cf_validate_certs }}"
+            status_code: 200
+          register: update_result
+          when: record_id is defined
+        
+        - name: Display update result
+          debug:
+            msg:
+              - "✅ DNS record updated successfully"
+              - "Record: {{ cf_record_name }}"
+              - "New Value: {{ cf_record_value }}"
+    
+    # DELETE DNS RECORD
+    - name: Delete DNS record
+      when: cf_action == 'delete'
+      block:
+        - name: Get DNS record to delete
+          uri:
+            url: "https://api.cloudflare.com/client/v4/zones/{{ zone_id }}/dns_records?name={{ cf_record_name }}.{{ cf_domain }}&type={{ cf_record_type }}"
+            method: GET
+            headers:
+              Authorization: "Bearer {{ cf_api_token }}"
+            return_content: true
+            validate_certs: "{{ cf_validate_certs }}"
+          register: delete_records
+          check_mode: false
+        
+        - name: Extract record ID
+          set_fact:
+            record_id: "{{ delete_records.json.result[0].id }}"
+          when:
+            - delete_records.json.result is defined
+            - delete_records.json.result | length > 0
+        
+        - name: Delete DNS record
+          uri:
+            url: "https://api.cloudflare.com/client/v4/zones/{{ zone_id }}/dns_records/{{ record_id }}"
+            method: DELETE
+            headers:
+              Authorization: "Bearer {{ cf_api_token }}"
+            validate_certs: "{{ cf_validate_certs }}"
+            status_code: 200
+          register: delete_result
+          when: record_id is defined
+        
+        - name: Display deletion result
+          debug:
+            msg:
+              - "✅ DNS record deleted successfully"
+              - "Record: {{ cf_record_name }}"
+              - "Type: {{ cf_record_type }}"
+    
+    # LIST DNS RECORDS
+    - name: List DNS records
+      when: cf_action == 'list'
+      block:
+        - name: Get all DNS records for zone
+          uri:
+            url: "https://api.cloudflare.com/client/v4/zones/{{ zone_id }}/dns_records"
+            method: GET
+            headers:
+              Authorization: "Bearer {{ cf_api_token }}"
+            return_content: true
+            validate_certs: "{{ cf_validate_certs }}"
+          register: all_records
+          check_mode: false
+        
+        - name: Display DNS records
+          debug:
+            msg: "{{ all_records.json.result | to_nice_json }}"
+        
+        - name: Create summary
+          debug:
+            msg:
+              - "📋 DNS Records Summary for {{ cf_domain }}"
+              - "Total records: {{ all_records.json.result | length }}"
+              - "---"
+              - "{{ all_records.json.result | map(attribute='name') | list | join(', ') }}"

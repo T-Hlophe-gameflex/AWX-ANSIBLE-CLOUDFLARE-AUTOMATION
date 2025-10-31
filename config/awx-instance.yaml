@@ -1,0 +1,122 @@
+---
+# AWX Instance Configuration
+# This file configures the AWX deployment on Kubernetes
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: awx
+  labels:
+    name: awx
+    app: awx
+
+---
+apiVersion: awx.ansible.com/v1beta1
+kind: AWX
+metadata:
+  name: ansible-awx
+  namespace: awx
+spec:
+  # Service Type - can be ClusterIP, NodePort, or LoadBalancer
+  service_type: NodePort
+  
+  # NodePort settings (if service_type is NodePort)
+  nodeport_port: 30080
+  
+  # Ingress settings (optional)
+  ingress_type: none
+  # ingress_hosts:
+  #   - hostname: awx.example.com
+  #     tls_secret: awx-tls-secret
+  
+  # Admin user configuration
+  admin_user: admin
+  admin_email: admin@example.com
+  admin_password_secret: ansible-awx-admin-password
+  
+  # PostgreSQL configuration
+  postgres_configuration_secret: ansible-awx-postgres-configuration
+  postgres_storage_class: standard
+  postgres_storage_requirements:
+    requests:
+      storage: 8Gi
+  postgres_resource_requirements:
+    requests:
+      memory: "2Gi"
+      cpu: "500m"
+    limits:
+      memory: "4Gi"
+      cpu: "1000m"
+  
+  # AWX Task and Web pods configuration
+  task_resource_requirements:
+    requests:
+      memory: "2Gi"
+      cpu: "500m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+  
+  web_resource_requirements:
+    requests:
+      memory: "1Gi"
+      cpu: "250m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+  
+  # Replicas
+  replicas: 1
+  
+  # AWX version/image
+  image: localhost:5000/awx-custom
+  image_version: latest
+  image_pull_policy: Always
+  
+  # Custom receptor configuration
+  receptor_log_level: info
+  
+  # EE (Execution Environment) configuration
+  ee_images:
+    - name: "AWX EE"
+      image: "quay.io/ansible/awx-ee:latest"
+  
+  # Projects data persistence
+  projects_persistence: true
+  projects_storage_class: standard
+  projects_storage_size: 8Gi
+  projects_storage_access_mode: ReadWriteOnce
+  
+  # Extra volumes (if needed)
+  # extra_volumes: |
+  #   - name: custom-certs
+  #     secret:
+  #       secretName: custom-certificates
+  
+  # Auto upgrade
+  auto_upgrade: true
+  
+  # Garbage collection
+  task_privileged: false
+  
+  # Development mode (set to false for production)
+  development_mode: false
+  
+  # Metrics endpoint
+  metrics_utility_enabled: false
+  
+  # LDAP Configuration (optional)
+  # ldap_configuration_secret: awx-ldap-config
+  
+  # Bundle CA Certificate (optional)
+  # bundle_cacert_secret: custom-ca-bundle
+  
+  # Hostname (optional)
+  # hostname: awx.local
+  
+  # Extra settings (optional)
+  # extra_settings:
+  #   - setting: AWX_TASK_ENV
+  #     value: 
+  #       ANSIBLE_FORCE_COLOR: "true"
+  #       ANSIBLE_HOST_KEY_CHECKING: "False"

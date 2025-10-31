@@ -1,0 +1,157 @@
+---
+# Production Environment - Global Variables
+# These variables apply to all hosts in the production inventory
+
+# =============================================================================
+# ENVIRONMENT IDENTIFICATION
+# =============================================================================
+environment: "production"
+environment_short: "prod"
+deployment_tier: "production"
+
+# =============================================================================
+# CLOUDFLARE CONFIGURATION
+# =============================================================================
+
+# API Authentication (loaded from credentials file)
+cloudflare_api_token: "{{ vault_cloudflare_api_token }}"
+cloudflare_account_id: "{{ vault_cloudflare_account_id }}"
+cloudflare_email: "{{ vault_cloudflare_email | default('') }}"
+
+# Global Cloudflare Settings
+cloudflare_default_ttl: 300
+cloudflare_proxied_by_default: true
+cloudflare_auto_minify:
+  html: true
+  css: true
+  js: true
+
+# SSL/TLS Settings
+cloudflare_ssl_mode: "full"  # off, flexible, full, strict
+cloudflare_tls_1_3: "on"
+cloudflare_min_tls_version: "1.2"
+cloudflare_opportunistic_encryption: true
+cloudflare_tls_client_auth: "off"
+cloudflare_automatic_https_rewrites: true
+cloudflare_always_use_https: true
+
+# Security Settings
+cloudflare_security_level: "high"  # off, essentially_off, low, medium, high, under_attack
+cloudflare_challenge_ttl: 1800
+cloudflare_browser_check: true
+cloudflare_privacy_pass: true
+cloudflare_security_header: true
+cloudflare_email_obfuscation: true
+cloudflare_server_side_exclude: true
+cloudflare_hotlink_protection: false
+
+# Performance Settings
+cloudflare_cache_level: "aggressive"  # off, basic, simplified, aggressive
+cloudflare_rocket_loader: "off"  # off, manual, automatic
+cloudflare_mirage: true
+cloudflare_polish: "lossless"  # off, lossless, lossy
+cloudflare_webp: true
+cloudflare_brotli: true
+
+# Network Settings
+cloudflare_ipv6: true
+cloudflare_websockets: true
+cloudflare_ip_geolocation: true
+cloudflare_pseudo_ipv4: "off"
+cloudflare_http2: true
+cloudflare_http3: true
+cloudflare_zero_rtt: true
+cloudflare_opportunistic_onion: false
+
+# Developer Settings
+cloudflare_development_mode: false
+cloudflare_response_buffering: true
+cloudflare_sort_query_string_for_cache: false
+cloudflare_true_client_ip_header: false
+cloudflare_cname_flattening: "flatten_at_root"
+
+# WAF and Rate Limiting
+cloudflare_waf_enabled: true
+cloudflare_rate_limiting_enabled: true
+cloudflare_firewall_rules_enabled: true
+
+# DDoS Protection
+cloudflare_ddos_protection: true
+cloudflare_spectrum_enabled: false
+
+# DNS Settings
+cloudflare_dns_record_ttl: 300
+cloudflare_dns_proxied: true
+
+# Cloudflare Load Balancing (if enabled)
+cloudflare_load_balancing_enabled: false
+
+# =============================================================================
+# AWX INTEGRATION
+# =============================================================================
+awx_host: "https://awx.example.com"
+awx_username: "admin"
+awx_password: "{{ vault_awx_password }}"
+awx_verify_ssl: true
+
+# =============================================================================
+# MONITORING AND NOTIFICATIONS
+# =============================================================================
+enable_notifications: true
+slack_webhook_url: "{{ vault_slack_webhook_url | default('') }}"
+notification_email: "devops@example.com"
+pagerduty_key: "{{ vault_pagerduty_key | default('') }}"
+
+# =============================================================================
+# BACKUP AND RECOVERY
+# =============================================================================
+backup_enabled: true
+backup_retention_days: 90
+backup_s3_bucket: "cf-demo-backups-prod"
+backup_aws_region: "us-east-1"
+
+# =============================================================================
+# LOGGING AND AUDITING
+# =============================================================================
+audit_logging_enabled: true
+log_retention_days: 365
+cloudflare_logpush_enabled: true
+cloudflare_logpush_destination: "s3://cf-logs-prod/cloudflare-logs"
+
+# =============================================================================
+# COMPLIANCE AND GOVERNANCE
+# =============================================================================
+compliance_mode: "strict"
+require_approval_for_changes: true
+require_peer_review: true
+change_window_start: "22:00"
+change_window_end: "06:00"
+change_window_timezone: "UTC"
+
+# =============================================================================
+# TAGS AND METADATA
+# =============================================================================
+tags:
+  Environment: "production"
+  ManagedBy: "ansible-awx"
+  Project: "cf-demo"
+  Team: "devops"
+  CostCenter: "infrastructure"
+  Compliance: "required"
+
+# =============================================================================
+# RATE LIMITS AND THROTTLING
+# =============================================================================
+api_rate_limit: 1200
+api_retry_attempts: 3
+api_retry_delay: 2
+api_timeout: 30
+concurrent_operations: 5
+
+# =============================================================================
+# ANSIBLE EXECUTION SETTINGS
+# =============================================================================
+ansible_connection_timeout: 30
+ansible_command_timeout: 60
+ansible_become_method: sudo
+ansible_python_interpreter: /usr/bin/python3

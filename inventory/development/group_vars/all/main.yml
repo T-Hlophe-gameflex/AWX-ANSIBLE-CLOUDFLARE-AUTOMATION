@@ -1,0 +1,30 @@
+---
+# Development Environment - Global Variables
+
+environment: "development"
+environment_short: "dev"
+deployment_tier: "development"
+
+# Cloudflare Configuration
+cloudflare_api_token: "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"
+cloudflare_development_mode: true
+cloudflare_ssl_mode: "flexible"
+cloudflare_security_level: "medium"
+cloudflare_waf_enabled: false
+cloudflare_rate_limiting_enabled: false
+
+# Less restrictive settings for development
+require_approval_for_changes: false
+require_peer_review: false
+audit_logging_enabled: true
+log_retention_days: 30
+
+# Notifications (optional for dev)
+enable_notifications: false
+
+# Tags
+tags:
+  Environment: "development"
+  ManagedBy: "ansible-awx"
+  Project: "cf-demo"
+  Team: "devops"

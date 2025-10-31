@@ -1,0 +1,102 @@
+# CF-DEMO-REPO
+
+# Python virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Ansible
+*.retry
+.ansible/
+ansible.log
+
+# Credentials and secrets
+config/credentials.yml
+**/vault.yml
+**/*password*
+**/*secret*
+**/*token*
+.env
+.env.local
+
+# Kubernetes
+kubeconfig
+*.kubeconfig
+
+# Backups
+backups/
+*.bak
+*.backup
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Kind cluster configs
+kind-config*.yaml
+
+# Helm
+charts/*.tgz
+
+# Terraform (if added later)
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# Documentation build
+site/
+docs/_build/
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Node modules (if any JS tools)
+node_modules/
+
+# Local development
+.local/
+scratch/
+playground/
