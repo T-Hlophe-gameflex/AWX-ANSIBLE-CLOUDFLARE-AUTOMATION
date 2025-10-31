@@ -1,4 +1,4 @@
-# CF-DEMO-REPO: Cloudflare Automation with AWX
+# Cloudflare Automation with AWX
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Ansible](https://img.shields.io/badge/Ansible-2.15+-blue.svg)](https://www.ansible.com/)
